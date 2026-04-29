@@ -1,0 +1,54 @@
+from sqlalchemy import create_engine
+import pandas as pd
+
+################################################################################
+# DATABASE CONNECTION (SANITIZED)
+################################################################################
+
+server = "SQL_SERVER_HOST"
+database = "RISK_DATABASE"
+driver = "ODBC Driver 17 for SQL Server"
+
+conn_str = (
+    f"mssql+pyodbc://@{server}/{database}"
+    f"?driver={driver.replace(' ', '+')}"
+    f"&trusted_connection=yes"
+)
+
+engine = create_engine(conn_str)
+
+################################################################################
+# QUERY 1 - MISSING PRICE DATA
+################################################################################
+
+query_missing_price = """
+SELECT *
+FROM risk_table
+WHERE price IS NULL
+"""
+
+df_missing_price = pd.read_sql(query_missing_price, engine)
+
+output_path_1 = "./output/missing_price_data.xlsx"
+
+df_missing_price.to_excel(output_path_1, index=False)
+
+print(f"Export completed. {len(df_missing_price)} rows saved to {output_path_1}")
+
+################################################################################
+# QUERY 2 - MISSING MAPPING DATA
+################################################################################
+
+query_missing_mapping = """
+SELECT *
+FROM risk_table
+WHERE market IS NULL
+"""
+
+df_missing_mapping = pd.read_sql(query_missing_mapping, engine)
+
+output_path_2 = "./output/missing_mapping_data.xlsx"
+
+df_missing_mapping.to_excel(output_path_2, index=False)
+
+print(f"Export completed. {len(df_missing_mapping)} rows saved to {output_path_2}")
